@@ -7,6 +7,7 @@ from settings import AWS_ACCESS_KEY, AWS_SECRET_KEY, BUCKET_NAME
 import requests
 import logging
 import tempfile
+import os
 import io
 
 logger = logging.getLogger(__name__)
@@ -33,8 +34,12 @@ class ImageManagement(object):
             with self.temp_dir as tempdir:
                 im.save(f"{tempdir}/{image_name}")
                 self.upload(f"{tempdir}/{image_name}", BUCKET_NAME)
+                if image_name is os.listdir(tempdir):
+                    print("File already available")
                 print(tempdir)
-            print(ROOT)
+            return r.status_code
+        else:
+            raise requests.exceptions.HTTPError
 
     def upload(self, image_name, bucket, object_name=None):
         self.s3 = self.session.client('s3')
